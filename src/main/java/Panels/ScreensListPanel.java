@@ -41,7 +41,7 @@ public class ScreensListPanel extends JPanel {
                 GridBagConstraints.NORTH, GridBagConstraints.CENTER,
                 new Insets(0, 10, 0, 10), 0, 0));
 
-        JButton b1 = new JButton("Добавить экран");
+        JButton b1 = new JButton("Добавить автору мозг");
         JButton b2 = new JButton("Удалить экран");
         b1.setMinimumSize(new Dimension(150,70));
         b2.setMinimumSize(new Dimension(150,70));

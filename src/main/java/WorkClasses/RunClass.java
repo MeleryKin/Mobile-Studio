@@ -23,6 +23,8 @@ public class RunClass implements ActionListener {
     public static int currentScreen = 0;
     public static ObjectOptionsPanel objectOptionsPanel = new ObjectOptionsPanel();
     public static ScreenOptionsPanel screenOptionsPanel = new ScreenOptionsPanel();
+    public static ScreensListPanel screensPanel = new ScreensListPanel();
+    public static ExternalDataPanel dataPanel = new ExternalDataPanel();
 
     RunClass(String param){
         try {
@@ -85,8 +87,7 @@ public class RunClass implements ActionListener {
             mainFramePanel.setBounds(LocationClass.getComponentSize(0, 0,1, 1, new Rectangle(0, 0, screenSize.width, screenSize.height)));
             frame.setContentPane(mainFramePanel);
 
-            ScreensListPanel screensPanel = new ScreensListPanel();
-            ExternalDataPanel dataPanel = new ExternalDataPanel();
+
 
             screensPanel.setBounds(LocationClass.getComponentSize(0, 0,0.3, 0.5, LocationClass.getParentSize(mainFramePanel)));
             dataPanel.setBounds(LocationClass.getComponentSize(0, 0.5,0.3, 0.5, LocationClass.getParentSize(mainFramePanel)));
@@ -113,7 +114,7 @@ public class RunClass implements ActionListener {
                 JSONObject tObject = FileWork.readProjectData("test.json");
                 projectData = new ProjectData(tObject);
             }
-            statePanel.updateScreen(currentScreen);
+            statePanel.updateScreen();
             screensPanel.updateScreen();
             frame.setVisible(true);
         }

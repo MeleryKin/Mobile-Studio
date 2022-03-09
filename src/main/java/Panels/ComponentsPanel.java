@@ -71,8 +71,9 @@ public class ComponentsPanel extends JPanel {
                     RunClass.projectData.screens.set(RunClass.currentScreen, tmp);
                     CurrentStatePanel.dedicated = tmp.indexComp - 1;
                     CurrentStatePanel.dedicatedType = "TextField";
-                    RunClass.statePanel.updateScreen(RunClass.currentScreen);
+                    RunClass.statePanel.updateScreen();
                     RunClass.objectOptionsPanel.updateScreen();
+                    RunClass.screensPanel.updateScreen();
                 }
             }
         });
@@ -101,7 +102,7 @@ public class ComponentsPanel extends JPanel {
                     RunClass.projectData.screens.set(RunClass.currentScreen, tmp);
                     CurrentStatePanel.dedicated = tmp.indexComp - 1;
                     CurrentStatePanel.dedicatedType = "Button";
-                    RunClass.statePanel.updateScreen(RunClass.currentScreen);
+                    RunClass.statePanel.updateScreen();
                     RunClass.objectOptionsPanel.updateScreen();
                 }
             }

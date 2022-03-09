@@ -32,7 +32,7 @@ public class ScrollButtonsPanel extends JPanel {
                 down.setEnabled(false);
             }
             up.setEnabled(true);
-            RunClass.statePanel.updateScreen(RunClass.currentScreen);
+            RunClass.statePanel.updateScreen();
         });
         up.addActionListener(actionEvent -> {
             if (upCoord - step < 0){
@@ -47,7 +47,7 @@ public class ScrollButtonsPanel extends JPanel {
                 up.setEnabled(false);
             }
             down.setEnabled(true);
-            RunClass.statePanel.updateScreen(RunClass.currentScreen);
+            RunClass.statePanel.updateScreen();
         });
     }
 }

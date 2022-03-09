@@ -74,8 +74,8 @@
             },
             {
                "ComponentName":"text1",
-               "CoordX":0,
-               "CoordY":20,
+               "CoordX":100,
+               "CoordY":100,
                "Width":20,
                "Height":20,
                "Type":"TextField",

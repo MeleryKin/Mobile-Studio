@@ -10,8 +10,8 @@ import java.util.ArrayList;
 
 public class CurrentStatePanel extends JPanel {
 
-    static int dedicated = -1;
-    static String dedicatedType = "";
+    public static int dedicated = -1;
+    public static String dedicatedType = "";
     public int widthScreen, heightScreen;
     private boolean needUpdate = false;
 
@@ -21,8 +21,9 @@ public class CurrentStatePanel extends JPanel {
         setBorder(BorderFactory.createLineBorder(Color.CYAN, 1));
     }
 
-    public void updateScreen(int x){
+    public void updateScreen(){
         try{
+            int x = RunClass.currentScreen;
             ScreenData newScreen = RunClass.projectData.screens.get(x);
             RunClass.screenOptionsPanel.updateScreen();
             this.removeAll();

@@ -20,4 +20,15 @@ public class FileWork {
         fr.close();
         return new JSONObject(ans.toString());
     }
+
+    public static JSONObject readConfigData(String fileName) throws IOException {
+        FileReader fr = new FileReader(fileName);
+        Scanner scanner = new Scanner(fr);
+        StringBuilder ans = new StringBuilder();
+        while (scanner.hasNextLine()){
+            ans.append(scanner.nextLine());
+        }
+        fr.close();
+        return new JSONObject(ans.toString());
+    }
 }

@@ -34,15 +34,16 @@ public class SettingsScreen implements ActionListener {
                     GridBagConstraints.NORTH, GridBagConstraints.CENTER,
                     new Insets(10, 10, 10, 10), 0, 0));
 
-            JTextField nameText = new JTextField("Some Project");
-            JTextField iconText = new JTextField("default.png");
+            JTextField nameText = new JTextField(RunClass.getProjectName());
+            JTextField iconText = new JTextField(RunClass.getIconPath());
             iconText.setEnabled(false);
             JComboBox<String> start = new JComboBox<>();
-            ArrayList<ScreenData> data = RunClass.projectData.screens;
+            ArrayList<ScreenData> data = RunClass.getScreensList();
             start.setModel(new DefaultComboBoxModel<>());
             for (ScreenData i:data){
                 start.addItem(i.name);
             }
+            start.setSelectedItem(RunClass.getStartScreen());
             panel.add(nameText, new GridBagConstraints(1, 0, 1, 1, 1, 1,
                     GridBagConstraints.NORTH, GridBagConstraints.CENTER,
                     new Insets(50, 10, 10, 10), 0, 0));

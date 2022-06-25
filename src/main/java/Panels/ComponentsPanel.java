@@ -1,16 +1,18 @@
 package Panels;
 
-import ComponentsDescription.ButtonData;
-import ComponentsDescription.ComponentData;
-import ComponentsDescription.ScreenData;
-import ComponentsDescription.TextFieldData;
+import ComponentsDescription.*;
 import WorkClasses.LocationClass;
 import WorkClasses.RunClass;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.text.RuleBasedCollator;
 
 public class ComponentsPanel extends JPanel {
 
@@ -56,7 +58,7 @@ public class ComponentsPanel extends JPanel {
                 if (x > RunClass.statePanel.getX() && x < RunClass.statePanel.getX() + RunClass.statePanel.widthScreen &&
                         y > RunClass.statePanel.getY() && x < RunClass.statePanel.getY() + RunClass.statePanel.heightScreen) {
                     TextFieldData tx = new TextFieldData();
-                    ScreenData tmp = RunClass.projectData.screens.get(RunClass.currentScreen);
+                    ScreenData tmp = RunClass.getScreen(RunClass.getCurrentScreen());
                     tx.name = "Component" + tmp.indexComp;
                     tmp.indexComp++;
                     tx.text = "Текст";
@@ -68,9 +70,9 @@ public class ComponentsPanel extends JPanel {
                     tx.kx = r.x;
                     tx.ky = r.y + RunClass.scrollButtonsPanel.upCoord;
                     tmp.components.add(tx);
-                    RunClass.projectData.screens.set(RunClass.currentScreen, tmp);
-                    CurrentStatePanel.dedicated = tmp.indexComp - 1;
-                    CurrentStatePanel.dedicatedType = "TextField";
+                    RunClass.setScreen(RunClass.getCurrentScreen(), tmp);
+                    CurrentStatePanel.setDedicated(tmp.components.size() - 1);
+                    CurrentStatePanel.setDedicatedType("TextField");
                     RunClass.statePanel.updateScreen();
                     RunClass.objectOptionsPanel.updateScreen();
                     RunClass.screensPanel.updateScreen();
@@ -86,11 +88,12 @@ public class ComponentsPanel extends JPanel {
                 if (x > RunClass.statePanel.getX() && x < RunClass.statePanel.getX() + RunClass.statePanel.widthScreen &&
                         y > RunClass.statePanel.getY() && x < RunClass.statePanel.getY() + RunClass.statePanel.heightScreen){
                     ButtonData bt = new ButtonData();
-                    ScreenData tmp = RunClass.projectData.screens.get(RunClass.currentScreen);
+                    ScreenData tmp = RunClass.getScreen(RunClass.getCurrentScreen());
                     bt.name = "Component" + tmp.indexComp;
                     tmp.indexComp++;
                     bt.text = "Кнопка";
-                    bt.color = "#d6d2d9";
+                    bt.colorBackground = new int[]{200, 200, 200};
+                    bt.colorFont = new int[]{0, 0, 0};
                     bt.type = "Button";
                     bt.w = 40;
                     bt.h = 30;
@@ -99,15 +102,45 @@ public class ComponentsPanel extends JPanel {
                     bt.kx = r.x;
                     bt.ky = r.y + RunClass.scrollButtonsPanel.upCoord;
                     tmp.components.add(bt);
-                    RunClass.projectData.screens.set(RunClass.currentScreen, tmp);
-                    CurrentStatePanel.dedicated = tmp.indexComp - 1;
-                    CurrentStatePanel.dedicatedType = "Button";
+                    RunClass.setScreen(RunClass.getCurrentScreen(), tmp);
+                    CurrentStatePanel.setDedicated(tmp.components.size() - 1);
+                    CurrentStatePanel.setDedicatedType("Button");
                     RunClass.statePanel.updateScreen();
                     RunClass.objectOptionsPanel.updateScreen();
+                    RunClass.screensPanel.updateScreen();
                 }
             }
         });
+        image.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                int x = e.getLocationOnScreen().x - RunClass.frame.getX();
+                int y = e.getLocationOnScreen().y - RunClass.frame.getY();
+                if (x > RunClass.statePanel.getX() && x < RunClass.statePanel.getX() + RunClass.statePanel.widthScreen &&
+                        y > RunClass.statePanel.getY() && x < RunClass.statePanel.getY() + RunClass.statePanel.heightScreen) {
 
+                    ImageData tx = new ImageData();
+                    ScreenData tmp = RunClass.getScreen(RunClass.getCurrentScreen());
+                    tx.name = "Component" + tmp.indexComp;
+                    tmp.indexComp++;
+                    //tx.text = "Текст";
+                    tx.type = "Image";
+                    tx.w = 240;
+                    tx.h = 320;
+                    Rectangle r = LocationClass.getScreenToGridSize(x - RunClass.statePanel.getX(),
+                            y - RunClass.statePanel.getY(), tx.w, tx.h, RunClass.statePanel.widthScreen, RunClass.statePanel.heightScreen);
+                    tx.kx = r.x;
+                    tx.ky = r.y + RunClass.scrollButtonsPanel.upCoord;
+                    tmp.components.add(tx);
+                    RunClass.setScreen(RunClass.getCurrentScreen(), tmp);
+                    CurrentStatePanel.setDedicated(tmp.components.size() - 1);
+                    CurrentStatePanel.setDedicatedType("Image");
+                    RunClass.statePanel.updateScreen();
+                    RunClass.objectOptionsPanel.updateScreen();
+                    RunClass.screensPanel.updateScreen();
+                }
+            }
+        });
 
         panel.add(text, new GridBagConstraints(0, 0, 1, 1, 1, 1,
                 GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,

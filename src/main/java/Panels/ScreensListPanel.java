@@ -12,13 +12,14 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Date;
 
 public class ScreensListPanel extends JPanel {
 
     JPanel main;
-
+    JTree tree;
     public ScreensListPanel(){
        // setLayout(null);
         setLayout(new GridBagLayout());
@@ -28,7 +29,7 @@ public class ScreensListPanel extends JPanel {
 
     public void updateScreen(){
         removeAll();
-        ArrayList<ScreenData> data = RunClass.projectData.screens;
+        ArrayList<ScreenData> data = RunClass.getScreensList();
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Проект");
         for (ScreenData t : data) {
             DefaultMutableTreeNode s = new DefaultMutableTreeNode(t.name);
@@ -38,7 +39,7 @@ public class ScreensListPanel extends JPanel {
             }
             root.add(s);
         }
-        JTree tree = new JTree(root);
+        tree = new JTree(root);
         JScrollPane setPane = new JScrollPane(tree);
      //   setPane.setBounds(0, 0, this.getWidth(), this.getHeight());
         setPane.setPreferredSize(new Dimension(this.getWidth(),370));
@@ -50,14 +51,17 @@ public class ScreensListPanel extends JPanel {
             if (path.getPathCount() < 2) return;
             String screen = path.getPathComponent(1).toString(); //имя экрана
             int screenNumber = 0;
-            for (int i = 0; i < RunClass.projectData.screens.size(); i++){
-                if (RunClass.projectData.screens.get(i).name.compareTo(screen) == 0){
+            for (int i = 0; i < RunClass.getScreensCount(); i++){
+                if (RunClass.getScreen(i).name.compareTo(screen) == 0){
                     screenNumber = i;
                 }
             }
             //JOptionPane.showMessageDialog(main, screenNumber);
-            if (path.getPathCount() == 3 && RunClass.currentScreen == screenNumber){ //выделить новый объект
-                ArrayList<ComponentData> comp = RunClass.projectData.screens.get(screenNumber).components;
+            if (path.getPathCount() == 3){ //выделить новый объект
+                if (screenNumber != RunClass.getCurrentScreen()){
+                    RunClass.setCurrentScreen(screenNumber);
+                }
+                ArrayList<ComponentData> comp = RunClass.getScreen(screenNumber).components;
                 int componentNumber = 0;
                 for (int i = 0; i < comp.size(); i++){
                     ComponentData temp = comp.get(i);
@@ -65,19 +69,13 @@ public class ScreensListPanel extends JPanel {
                         componentNumber = i;
                     }
                 }
-                CurrentStatePanel.dedicated = componentNumber;
-                CurrentStatePanel.dedicatedType = comp.get(componentNumber).type;
+                CurrentStatePanel.setDedicated(componentNumber);
+                CurrentStatePanel.setDedicatedType(comp.get(componentNumber).type);
                 RunClass.statePanel.updateScreen();
                 RunClass.objectOptionsPanel.updateScreen();
             }
             else if (path.getPathCount() == 2){ //отобразить новый экран
-                CurrentStatePanel.dedicated = -1;
-                CurrentStatePanel.dedicatedType = "";
-                RunClass.currentScreen = screenNumber;
-                RunClass.scrollButtonsPanel.upCoord = 0;
-                RunClass.scrollButtonsPanel.downCoord = 320;
-                RunClass.statePanel.updateScreen();
-                RunClass.objectOptionsPanel.updateScreen();
+                RunClass.setCurrentScreen(screenNumber);
             }
         });
 
@@ -86,7 +84,7 @@ public class ScreensListPanel extends JPanel {
                 new Insets(0, 10, 0, 10), 0, 0));
 
         JButton b1 = new JButton("Добавить экран");
-        JButton b2 = new JButton("Удалить экран");
+        JButton b2 = new JButton("Удалить");
 
         b1.setMinimumSize(new Dimension(150,70));
         b2.setMinimumSize(new Dimension(150,70));
@@ -98,6 +96,37 @@ public class ScreensListPanel extends JPanel {
             }
         });
 
+        b2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                TreePath path = tree.getSelectionPath();
+                if (path == null){
+                    JOptionPane.showMessageDialog(RunClass.frame, "Выберите объект дерева для удаления.");
+                    return;
+                }
+                if (path.getPathCount() == 2){
+                    String screen = path.getPathComponent(1).toString();
+                    if (RunClass.getScreensCount() == 1){
+                        JOptionPane.showMessageDialog(RunClass.frame, "Проект должен содержать как минимум один экран!");
+                        return;
+                    }
+                    if (JOptionPane.showConfirmDialog(RunClass.frame, "Удалить экран?", "Удаление", JOptionPane.YES_NO_OPTION) == 0){
+                        RunClass.deleteScreen(RunClass.getScreenID(screen));
+                    }
+
+                }
+                else if (path.getPathCount() == 3){
+                    String screen = path.getPathComponent(1).toString();
+                    String object = path.getPathComponent(2).toString();
+                    if (JOptionPane.showConfirmDialog(RunClass.frame, "Удалить объект?", "Удаление", JOptionPane.YES_NO_OPTION) == 0) {
+                        RunClass.deleteObject(RunClass.getScreenID(screen), RunClass.getObjectID(RunClass.getScreenID(screen), object));
+                    }
+                }
+                else {
+                    JOptionPane.showMessageDialog(RunClass.frame, "Выберите объект дерева для удаления.");
+                }
+            }
+        });
         add(b1, new GridBagConstraints(1, 1, 1, 1, 1, 1,
                 GridBagConstraints.NORTH, GridBagConstraints.CENTER,
                 new Insets(10, 10, 10, 10), 0, 0));

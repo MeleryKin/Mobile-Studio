@@ -9,11 +9,16 @@ public class ScrollButtonsPanel extends JPanel {
     public int downCoord = 320;
     private final int maxConst = 1000;
     private final int step = 50;
+    private static JButton up, down;
+
+    public static void setEnableUp(boolean enable){
+        up.setEnabled(enable);
+    }
 
     public ScrollButtonsPanel(){
         setLayout(null);
-        JButton up = new JButton("˄");
-        JButton down = new JButton("˅");
+        up = new JButton("˄");
+        down = new JButton("˅");
         up.setBounds(5,250,50,50);
         down.setBounds(5,310,50,50);
         add(up);

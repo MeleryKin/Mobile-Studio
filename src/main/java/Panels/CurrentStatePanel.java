@@ -3,15 +3,18 @@ package Panels;
 import ComponentsDescription.*;
 import WorkClasses.*;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 
 public class CurrentStatePanel extends JPanel {
 
-    public static int dedicated = -1;
-    public static String dedicatedType = "";
+    private static int dedicated = -1;
+    private static String dedicatedType = "";
     public int widthScreen, heightScreen;
     private boolean needUpdate = false;
 
@@ -23,10 +26,13 @@ public class CurrentStatePanel extends JPanel {
 
     public void updateScreen(){
         try{
-            int x = RunClass.currentScreen;
-            ScreenData newScreen = RunClass.projectData.screens.get(x);
             RunClass.screenOptionsPanel.updateScreen();
+            RunClass.dataPanel.updateScreen();
             this.removeAll();
+            ScreenData newScreen = RunClass.getScreen(RunClass.getCurrentScreen());
+
+            Color backgroundColor = new Color(newScreen.color[0], newScreen.color[1], newScreen.color[2]);
+            this.setBackground(backgroundColor);
             JPanel tempPanel = this;
             RunClass.objects = new ArrayList<>();
             for (int i = 0; i < newScreen.components.size(); i++){
@@ -41,7 +47,7 @@ public class CurrentStatePanel extends JPanel {
                     obj = new JLabel();
                 }
                 else if (c.type.compareTo("Image") == 0){
-                    obj = new JTextField();
+                    obj = new JLabel();
                 }
                 else if (c.type.compareTo("Video") == 0){
                     obj = new JTextField();
@@ -65,7 +71,7 @@ public class CurrentStatePanel extends JPanel {
                                 RunClass.objects.set(finalI, tmp);
                             }
                             else if (ct.type.compareTo("Image") == 0){
-                                JTextField tmp = (JTextField) f[i];
+                                JLabel tmp = (JLabel) f[i];
                                 tmp.setBorder(BorderFactory.createLineBorder(Color.black, 1));
                                 RunClass.objects.set(finalI, tmp);
                             }
@@ -86,7 +92,7 @@ public class CurrentStatePanel extends JPanel {
                                     ((JLabel) finalObj).setBorder(BorderFactory.createLineBorder(Color.blue, 2));
                                 }
                                 else if (c.type.compareTo("Image") == 0){
-                                    ((JTextField) finalObj).setBorder(BorderFactory.createLineBorder(Color.blue, 2));
+                                    ((JLabel) finalObj).setBorder(BorderFactory.createLineBorder(Color.blue, 2));
                                 }
                                 else if (c.type.compareTo("Video") == 0){
                                     ((JTextField) finalObj).setBorder(BorderFactory.createLineBorder(Color.blue, 2));
@@ -121,7 +127,7 @@ public class CurrentStatePanel extends JPanel {
                             ((JLabel)finalObj).setBounds(x, y, w, h);
                         }
                         else if (c.type.compareTo("Image") == 0){
-                            ((JTextField)finalObj).setBounds(x, y, w, h);
+                            ((JLabel)finalObj).setBounds(x, y, w, h);
                         }
                         else if (c.type.compareTo("Video") == 0){
                             ((JTextField)finalObj).setBounds(x, y, w, h);
@@ -155,8 +161,8 @@ public class CurrentStatePanel extends JPanel {
                     ((JLabel)obj).addMouseListener(clicked);
                     ((JLabel)obj).addMouseMotionListener(moved);
                     ((JLabel)obj).setOpaque(true);
-                    System.setProperty("myColor", ((ButtonData)c).color);
-                    Color color = Color.getColor("myColor");
+                    //System.setProperty("myColor", );
+                    Color color = new Color(((ButtonData)c).colorBackground[0], ((ButtonData)c).colorBackground[1], ((ButtonData)c).colorBackground[2]);
                     ((JLabel)obj).setBackground(color);
                     ((JLabel)obj).setHorizontalAlignment(JLabel.CENTER);
                     ((JLabel)obj).setText(((ButtonData)c).text);
@@ -164,9 +170,19 @@ public class CurrentStatePanel extends JPanel {
                     ((JLabel)obj).setBorder(BorderFactory.createLineBorder(g, t));
                 }
                 else if (c.type.compareTo("Image") == 0){
-                    ((JTextField)obj).addMouseListener(clicked);
-                    ((JTextField)obj).addMouseMotionListener(moved);
-                    ((JTextField)obj).setBounds(LocationClass.getGridToScreenSize(c.kx, c.ky - RunClass.scrollButtonsPanel.upCoord, c.w, c.h, widthScreen, heightScreen));
+                    File f;
+                    f = new File("xiao.jpg");
+                    try {
+                        BufferedImage img = ImageIO.read(f);
+                        obj = new JLabel(new ImageIcon(img));
+                    }
+                    catch (Exception jex){
+                        jex.printStackTrace();
+                    }
+                    ((JLabel)obj).addMouseListener(clicked);
+                    ((JLabel)obj).addMouseMotionListener(moved);
+                    ((JLabel)obj).setBounds(LocationClass.getGridToScreenSize(c.kx, c.ky - RunClass.scrollButtonsPanel.upCoord, c.w, c.h, widthScreen, heightScreen));
+                    ((JLabel)obj).setBorder(BorderFactory.createLineBorder(g, t));
                 }
                 else if (c.type.compareTo("Video") == 0){
                     ((JTextField)obj).addMouseListener(clicked);
@@ -177,6 +193,7 @@ public class CurrentStatePanel extends JPanel {
                 add((Component) obj);
                 this.updateUI();
             }
+            this.updateUI();
         }
         catch (ClassCastException classCastException){
             JOptionPane.showMessageDialog(this, "Ошибка обращения к компоненту. Обратитесь к разработчику.");
@@ -184,6 +201,22 @@ public class CurrentStatePanel extends JPanel {
         catch(Exception e){
             e.printStackTrace();
         }
+    }
+
+    public static int getDedicated(){
+        return dedicated;
+    }
+
+    public static void setDedicated(int value){
+        dedicated = value;
+    }
+
+    public static String getDedicatedType(){
+        return dedicatedType;
+    }
+
+    public static void setDedicatedType(String type){
+        dedicatedType = type;
     }
 
     @Override

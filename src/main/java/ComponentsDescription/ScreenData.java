@@ -8,19 +8,24 @@ public class ScreenData {
     public String name;
     public int indexComp;
     public ArrayList<ComponentData> components;
-    public String color;
+    public int[] color;
     public String nextScreen;
 
-    ScreenData(){
+    public ScreenData(){
         name = "Screen1";
         indexComp = 0;
+        color = new int[]{255, 255, 255};
         components = new ArrayList<>();
     }
 
     ScreenData(JSONObject data){
         name = data.getString("ScreenName");
         indexComp = data.getInt("IndexOfComponents");
-        color = data.getString("Color");
+        JSONArray jColor = data.getJSONArray("Color");
+        color = new int[3];
+        color[0] = jColor.getInt(0);
+        color[1] = jColor.getInt(1);
+        color[2] = jColor.getInt(2);
         nextScreen = data.getString("NextScreen");
         components = new ArrayList<>();
         JSONArray componentsArray = data.getJSONArray("Components");

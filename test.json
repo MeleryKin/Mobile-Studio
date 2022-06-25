@@ -5,11 +5,21 @@
    "Screens":[
       {
          "ScreenName":"Screen1",
-		 "IndexOfComponents":2,
+		 "IndexOfComponents":5,
 		 "Color":"0xffffff",
 		 "NextScreen":"Screen2",
          "Components":[
             {
+               "ComponentName":"component0",
+               "CoordX":0,
+               "CoordY":0,
+               "Width":240,
+               "Height":320,
+               "Type":"Image",
+               "NextScreen":"Screen2",
+			   "FileName":"xiao.png"
+            },
+			{
                "ComponentName":"button0",
                "CoordX":18,
                "CoordY":131,
@@ -57,30 +67,19 @@
       },
       {
          "ScreenName":"Screen2",
-		 "IndexOfComponents":3,
+		 "IndexOfComponents":1,
 		 "Color":"0xffffff",
 		 "NextScreen":"Screen1",
          "Components":[
             {
-               "ComponentName":"button1",
-               "CoordX":0,
-               "CoordY":0,
-               "Width":40,
-               "Height":40,
-               "Type":"Button",
-               "NextScreen":"Screen2",
-               "Text":"example",
-			   "Color":"0XFFFFFF"
-            },
-            {
                "ComponentName":"text1",
-               "CoordX":100,
-               "CoordY":100,
-               "Width":20,
+               "CoordX":45,
+               "CoordY":80,
+               "Width":150,
                "Height":20,
                "Type":"TextField",
                "NextScreen":"example else",
-               "Text":"help me"
+               "Text":"[entry] + [name]"
             }
          ]
       }

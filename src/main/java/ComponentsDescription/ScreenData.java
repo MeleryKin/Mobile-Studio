@@ -9,13 +9,14 @@ public class ScreenData {
     public int indexComp;
     public ArrayList<ComponentData> components;
     public int[] color;
-    public String nextScreen;
+    public ArrayList<TransitionData> transitions;
 
     public ScreenData(){
         name = "Screen1";
         indexComp = 0;
         color = new int[]{255, 255, 255};
         components = new ArrayList<>();
+        transitions = new ArrayList<>();
     }
 
     ScreenData(JSONObject data){
@@ -26,7 +27,6 @@ public class ScreenData {
         color[0] = jColor.getInt(0);
         color[1] = jColor.getInt(1);
         color[2] = jColor.getInt(2);
-        nextScreen = data.getString("NextScreen");
         components = new ArrayList<>();
         JSONArray componentsArray = data.getJSONArray("Components");
         for (int i = 0; i < componentsArray.length(); i++){
@@ -46,6 +46,13 @@ public class ScreenData {
                 nw = new VideoData(x);
             }
             components.add(nw);
+        }
+        transitions = new ArrayList<>();
+        JSONArray transitionsArray = data.getJSONArray("Transitions");
+        for (int i = 0; i < transitionsArray.length(); i++){
+            JSONObject x = transitionsArray.getJSONObject(i);
+            TransitionData nt = new TransitionData(x);
+            transitions.add(nt);
         }
     }
 }

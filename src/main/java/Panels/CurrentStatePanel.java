@@ -5,6 +5,8 @@ import WorkClasses.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.AbstractBorder;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -17,11 +19,15 @@ public class CurrentStatePanel extends JPanel {
     private static String dedicatedType = "";
     public int widthScreen, heightScreen;
     private boolean needUpdate = false;
+    private Point coord = new Point();
+    private int moveMode = 0;
+    private JPanel panel;
 
     public CurrentStatePanel(){
         setLayout(null);
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createLineBorder(Color.CYAN, 1));
+        panel = this;
     }
 
     public void updateScreen(){
@@ -55,6 +61,21 @@ public class CurrentStatePanel extends JPanel {
 
                 Object finalObj = obj;
                 MouseAdapter clicked = new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        coord.x = e.getPoint().x;
+                        coord.y = e.getPoint().y;
+                        if (coord.x <= 10 && coord.x >= 0 && coord.y <= 10 && coord.y >= 0) moveMode = 1;
+                        else if (coord.x <= ((JComponent)finalObj).getWidth() &&
+                                coord.x >= ((JComponent)finalObj).getWidth() - 10 &&coord.y <= 10 && coord.y >= 0) moveMode = 2;
+                        else if (coord.x <= 10 && coord.x >= 0 && coord.y <= ((JComponent)finalObj).getHeight() &&
+                                coord.y >= ((JComponent)finalObj).getHeight() - 10)moveMode = 3;
+                        else if (coord.x <= ((JComponent)finalObj).getWidth() &&
+                                coord.x >= ((JComponent)finalObj).getWidth() - 10 && coord.y <= ((JComponent)finalObj).getHeight() &&
+                                coord.y >= ((JComponent)finalObj).getHeight() - 10) moveMode = 4;
+                        else moveMode = 0;
+                    }
+
                     @Override
                     public void mouseClicked(MouseEvent e) {
                         Object[] f = tempPanel.getComponents();
@@ -116,10 +137,38 @@ public class CurrentStatePanel extends JPanel {
                 MouseMotionAdapter moved = new MouseMotionAdapter() {
                     @Override
                     public void mouseDragged(MouseEvent e) {
-                        int x = e.getX() + ((JComponent)finalObj).getX();
-                        int y = e.getY() + ((JComponent)finalObj).getY();
-                        int w =  ((JComponent) finalObj).getWidth();
-                        int h = ((JComponent) finalObj).getHeight();
+                        ComponentData tmp = newScreen.components.get(finalI);
+                        int x = 0, y = 0, w = 0, h = 0;
+                        if (moveMode == 0){
+                            x = e.getX() + ((JComponent)finalObj).getX() - coord.x;
+                            y = e.getY() + ((JComponent)finalObj).getY() - coord.y;
+                            w =  ((JComponent) finalObj).getWidth();
+                            h = ((JComponent) finalObj).getHeight();
+                        }
+                        else if (moveMode == 1){
+                            x = e.getX() + ((JComponent)finalObj).getX() - coord.x;
+                            y = e.getY() + ((JComponent)finalObj).getY() - coord.y;
+                            w =  ((JComponent) finalObj).getWidth() - e.getX() + coord.x;
+                            h = ((JComponent) finalObj).getHeight() - e.getY() + coord.y;
+                        }
+                        else if (moveMode == 2){
+                            x = ((JComponent)finalObj).getX();
+                            y = ((JComponent)finalObj).getY();
+                            w =  ((JComponent) finalObj).getWidth() - (((JComponent) finalObj).getWidth() - e.getX() + coord.x);
+                            h = ((JComponent) finalObj).getHeight() - (((JComponent) finalObj).getHeight() - e.getY() + coord.y);
+                        }
+                        else if (moveMode == 3){
+                            x = ((JComponent)finalObj).getX();
+                            y = ((JComponent)finalObj).getY();
+                            w =  ((JComponent) finalObj).getWidth() - e.getX() + coord.x;
+                            h = ((JComponent) finalObj).getHeight() - e.getY() + coord.y;
+                        }
+                        else if (moveMode == 4){
+                            x = ((JComponent)finalObj).getX();
+                            y = ((JComponent)finalObj).getY();
+                            w =  ((JComponent) finalObj).getWidth() - (((JComponent) finalObj).getWidth() - e.getX() + coord.x);
+                            h = ((JComponent) finalObj).getHeight() - (((JComponent) finalObj).getHeight() - e.getY() + coord.y);
+                        }
                         if (c.type.compareTo("TextField") == 0){
                             ((JLabel)finalObj).setBounds(x, y, w, h);
                         }
@@ -132,12 +181,15 @@ public class CurrentStatePanel extends JPanel {
                         else if (c.type.compareTo("Video") == 0){
                             ((JTextField)finalObj).setBounds(x, y, w, h);
                         }
-                        ComponentData tmp = newScreen.components.get(finalI);
                         Rectangle r = LocationClass.getScreenToGridSize(x, y, w, h, widthScreen, heightScreen);
                         tmp.kx = r.x;
                         tmp.ky = r.y + RunClass.scrollButtonsPanel.upCoord;
+                        tmp.w = r.width;
+                        tmp.h = r.height;
                         newScreen.components.set(finalI, tmp);
+                        RunClass.resetSave();
                         needUpdate = true;
+                        RunClass.objectOptionsPanel.updateScreen();
                     }
                 };
                 Color g;

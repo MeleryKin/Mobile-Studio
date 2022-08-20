@@ -6,6 +6,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 
 public class SettingsScreen implements ActionListener {
@@ -62,6 +64,15 @@ public class SettingsScreen implements ActionListener {
             panel.add(iconButton, new GridBagConstraints(2, 1, 1, 1, 1, 1,
                     GridBagConstraints.NORTH, GridBagConstraints.CENTER,
                     new Insets(10, 10, 10, 10), 0, 0));
+
+            frame.addWindowListener(new WindowAdapter(){
+                public void windowClosing(WindowEvent e){
+                    RunClass.setProjectName(nameText.getText());
+                    RunClass.setIconPath(iconText.getText());
+                    RunClass.setStartScreen(start.getSelectedItem().toString());
+                    RunClass.resetSave();
+                }
+            });
             frame.setContentPane(panel);
             frame.setVisible(true);
         }

@@ -62,6 +62,7 @@ public class ExternalDataPanel extends JPanel {
                         }
                     }
                     x.name = s;
+                    RunClass.resetSave();
                 }
                 else {
                     if (x.type.compareTo("Число") == 0){
@@ -78,10 +79,14 @@ public class ExternalDataPanel extends JPanel {
                     }
                 }
                 RunClass.setParameter(row, x);
+                RunClass.resetSave();
                 updateScreen();
             }
         };
         //settings.setPreferredSize(new Dimension(this.getWidth(), 370));
+        settings.setRowSelectionAllowed(false);
+        //int selrow = settings.getSelectedRow();
+        //if (selrow >= 0) settings.setRowSelectionInterval(selrow,selrow);
         settings.setPreferredSize(new Dimension(this.getWidth()*81/120, this.getHeight()*81/120));
         JScrollPane setPane = new JScrollPane(settings);
         setPane.setBounds(0, 0, this.getWidth(), 320);
@@ -102,6 +107,7 @@ public class ExternalDataPanel extends JPanel {
                 int x = settings.getSelectedRow();
                 if (JOptionPane.showConfirmDialog(RunClass.frame, "Удалить переменную?", "Удаление", JOptionPane.YES_NO_OPTION) == 0){
                     RunClass.deleteParameter(x);
+                    RunClass.resetSave();
                     RunClass.dataPanel.updateScreen();
                 }
             }

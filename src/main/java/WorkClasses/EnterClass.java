@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 public class EnterClass implements ActionListener {
 
@@ -37,8 +38,28 @@ public class EnterClass implements ActionListener {
                 new RunClass("");
             });
             oldProject.addActionListener(e -> {
-                frame.setVisible(false);
-                new RunClass("param");
+                try {
+                    JFileChooser chooser = new JFileChooser();
+                    chooser.setCurrentDirectory(new java.io.File("."));
+                    chooser.setDialogTitle("Выбор проекта");
+                    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                    chooser.setAcceptAllFileFilterUsed(false);
+                    if (chooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
+                        String x = chooser.getSelectedFile().getPath();
+                        File project = new File(x+"/project.json");
+                        File config = new File(x+"/config.json");
+                        if (project.exists() && config.exists()){
+                            frame.setVisible(false);
+                            new RunClass(x);
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(frame, "Неправильная папка проекта!");
+                        }
+                    }
+                }
+                catch (Exception ex){
+                    ex.printStackTrace();
+                }
             });
         }
         catch (Exception e){

@@ -9,19 +9,26 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class RunClass implements ActionListener {
     public static JFrame frame = new JFrame("Mobile Studio");
     static Dimension screenSize;
+    public static Rectangle stateSize;
     private static ProjectData projectData;
     private static ConfigData configData;
+    private static int currentScreen = 0;
     public static ArrayList<Object> objects;
+    public static boolean SCREEN_DATA = true;
+    private static boolean saveData = true;
+
     public static ScrollButtonsPanel scrollButtonsPanel = new ScrollButtonsPanel();
     public static CurrentStatePanel statePanel = new CurrentStatePanel();
     public static ComponentsPanel componentsPanel = new ComponentsPanel();
-    private static int currentScreen = 0;
     public static ObjectOptionsPanel objectOptionsPanel = new ObjectOptionsPanel();
     public static ScreenOptionsPanel screenOptionsPanel = new ScreenOptionsPanel();
     public static ScreensListPanel screensPanel = new ScreensListPanel();
@@ -30,20 +37,203 @@ public class RunClass implements ActionListener {
     RunClass(String param){
         try {
             frame.setSize(1200, 900);
-            frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+           // frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+            frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
             //frame.setMinimumSize(new Dimension(900, 700));
             frame.setLocationRelativeTo(null);
             frame.setLayout(null);
             frame.setVisible(true);
             frame.setResizable(false);
 
+            frame.addWindowListener(new WindowAdapter(){
+                public void windowClosing(WindowEvent e){
+                    if (projectData.saved){
+                        System.exit(0);
+                        return;
+                    }
+                    if (JOptionPane.showConfirmDialog(RunClass.frame, "Сохранить изменения?", "Сохранение", JOptionPane.YES_NO_OPTION) == 0){
+                        try {
+                            FileWork.saveConfigData(configData, projectData.path);
+                            FileWork.saveProjectData(projectData, projectData.path);
+                        }
+                        catch (Exception ex){
+                            ex.printStackTrace();
+                        }
+                    }
+                    System.exit(0);
+                }
+            });
+
             JMenuBar menuBar = new JMenuBar();
             JMenu fileMenu = new JMenu("Файл");
-            JMenuItem newProject = new JMenuItem("Создать новый проект");
-            JMenuItem openProject = new JMenuItem("Открыть существующий проект");
-            JMenuItem saveProject = new JMenuItem("Сохранить проект");
-            JMenuItem saveAsProject = new JMenuItem("Сохранить проект как...");
-            JMenuItem generate = new JMenuItem("Создать мобильное приложение");
+            JMenuItem newProject = new JMenuItem(new AbstractAction() {
+
+                {
+                    putValue(NAME, "Создать новый проект");
+                }
+
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                    if (!projectData.saved)
+                        if (JOptionPane.showConfirmDialog(RunClass.frame, "Сохранить изменения?", "Сохранение", JOptionPane.YES_NO_OPTION) == 0){
+                            try {
+                                FileWork.saveConfigData(configData, projectData.path);
+                                FileWork.saveProjectData(projectData, projectData.path);
+                            }
+                            catch (Exception ex){
+                                ex.printStackTrace();
+                            }
+                        }
+                    frame.dispose();
+                    statePanel.setDedicated(-1);
+                    statePanel.setDedicatedType("");
+                    new RunClass("");
+                    statePanel.updateScreen();
+                }
+            });
+            JMenuItem openProject = new JMenuItem(new AbstractAction() {
+
+                {
+                    putValue(NAME, "Открыть существующий проект");
+                }
+
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                    try {
+                        if (!projectData.saved)
+                            if (JOptionPane.showConfirmDialog(RunClass.frame, "Сохранить изменения?", "Сохранение", JOptionPane.YES_NO_OPTION) == 0){
+                                try {
+                                    FileWork.saveConfigData(configData, projectData.path);
+                                    FileWork.saveProjectData(projectData, projectData.path);
+                                }
+                                catch (Exception ex){
+                                    ex.printStackTrace();
+                                }
+                            }
+                        JFileChooser chooser = new JFileChooser();
+                        chooser.setCurrentDirectory(new java.io.File("."));
+                        chooser.setDialogTitle("Выбор проекта");
+                        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                        chooser.setAcceptAllFileFilterUsed(false);
+                        if (chooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
+                            String x = chooser.getSelectedFile().getPath();
+                            File project = new File(x+"/project.json");
+                            File config = new File(x+"/config.json");
+                            if (project.exists() && config.exists()){
+                                frame.dispose();
+                                statePanel.setDedicated(-1);
+                                statePanel.setDedicatedType("");
+                                new RunClass(x);
+                            }
+                            else {
+                                JOptionPane.showMessageDialog(frame, "Неправильная папка проекта!");
+                            }
+                        }
+                    }
+                    catch (Exception ex){
+                        ex.printStackTrace();
+                    }
+                }
+            });
+            JMenuItem saveProject = new JMenuItem(new AbstractAction() {
+
+                {
+                    putValue(NAME, "Сохранить проект");
+                }
+
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                    if (projectData.path.compareTo("") == 0){
+                        JFileChooser chooser = new JFileChooser();
+                        chooser.setCurrentDirectory(new java.io.File("."));
+                        chooser.setDialogTitle("Выбор пути");
+                        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                        chooser.setAcceptAllFileFilterUsed(false);
+                        if (chooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
+                            try {
+                                String path = chooser.getSelectedFile().getPath() + "/" + configData.name;
+                                File f = new File(path);
+                                f.mkdir();
+                                projectData.path = path;
+                                FileWork.saveConfigData(configData, path);
+                                FileWork.saveProjectData(projectData, path);
+                                projectData.saved = true;
+                            }
+                            catch (Exception e){
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    else {
+                        try {
+                            FileWork.saveConfigData(configData, projectData.path);
+                            FileWork.saveProjectData(projectData, projectData.path);
+                            projectData.saved = true;
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+            JMenuItem saveAsProject = new JMenuItem(new AbstractAction() {
+
+                {
+                    putValue(NAME, "Сохранить проект как...");
+                }
+
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                    JFileChooser chooser = new JFileChooser();
+                    chooser.setCurrentDirectory(new java.io.File("."));
+                    chooser.setDialogTitle("Выбор пути");
+                    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                    chooser.setAcceptAllFileFilterUsed(false);
+                    if (chooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
+                        try {
+                            String path = chooser.getSelectedFile().getPath() + "/" + configData.name;
+                            File f = new File(path);
+                            f.mkdir();
+                            projectData.path = path;
+                            FileWork.saveConfigData(configData, path);
+                            FileWork.saveProjectData(projectData, path);
+                            projectData.saved = true;
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+            JMenuItem generate = new JMenuItem(new AbstractAction() {
+
+                {
+                    putValue(NAME, "Сгенерировать мобильное приложение");
+                }
+
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                    JFileChooser chooser = new JFileChooser();
+                    chooser.setCurrentDirectory(new java.io.File("."));
+                    chooser.setDialogTitle("Выбор пути");
+                    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                    chooser.setAcceptAllFileFilterUsed(false);
+                    if (chooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
+                        try {
+                            String path = chooser.getSelectedFile().getPath() + "/" + configData.name;
+                            File f = new File(path);
+                            f.mkdir();
+                            projectData.path = path;
+                            FileWork.saveConfigData(configData, path);
+                            FileWork.saveProjectData(projectData, path);
+                            projectData.saved = true;
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
             JMenuItem exitProject = new JMenuItem(new AbstractAction() {
 
                 {
@@ -90,6 +280,7 @@ public class RunClass implements ActionListener {
             mainFramePanel.setBounds(LocationClass.getComponentSize(0, 0,1, 1, new Rectangle(0, 0, screenSize.width, screenSize.height)));
             frame.setContentPane(mainFramePanel);
 
+            stateSize = LocationClass.getComponentSize(0, 0,0.3, 0.5, LocationClass.getParentSize(mainFramePanel));
             screensPanel.setBounds(LocationClass.getComponentSize(0, 0,0.3, 0.5, LocationClass.getParentSize(mainFramePanel)));
             dataPanel.setBounds(LocationClass.getComponentSize(0, 0.5,0.3, 0.5, LocationClass.getParentSize(mainFramePanel)));
             componentsPanel.setBounds(LocationClass.getComponentSize(0.3, 0,0.4, 0.15, LocationClass.getParentSize(mainFramePanel)));
@@ -113,10 +304,10 @@ public class RunClass implements ActionListener {
                 configData = new ConfigData();
             }
             else {
-                JSONObject script = FileWork.readProjectData("pr.json");
-                projectData = new ProjectData(script);
+                JSONObject script = FileWork.readProjectData(param);
+                projectData = new ProjectData(script, param);
 
-                JSONObject config = FileWork.readConfigData("config.json");
+                JSONObject config = FileWork.readConfigData(param);
                 configData = new ConfigData(config);
             }
             statePanel.updateScreen();
@@ -289,6 +480,29 @@ public class RunClass implements ActionListener {
 
     public static void deleteParameter(int x){
         configData.parameters.remove(x);
+    }
+
+    public static ArrayList<TransitionData>getTransitionsData(boolean transitions){
+        saveData = transitions;
+        if (transitions == SCREEN_DATA){
+            return projectData.screens.get(currentScreen).transitions;
+        }
+        else {
+            return projectData.screens.get(currentScreen).components.get(CurrentStatePanel.getDedicated()).transitions;
+        }
+    }
+
+    public static void saveTransitions(ArrayList<TransitionData> transitions){
+        if (saveData == SCREEN_DATA){
+            projectData.screens.get(currentScreen).transitions = transitions;
+        }
+        else {
+            projectData.screens.get(currentScreen).components.get(CurrentStatePanel.getDedicated()).transitions = transitions;
+        }
+    }
+
+    public static void resetSave(){
+        projectData.saved = false;
     }
 
     @Override

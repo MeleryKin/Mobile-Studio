@@ -107,6 +107,7 @@ public class ObjectOptionsPanel extends JPanel {
                     ((ButtonData)component).colorBackground[1] = newColor.getGreen();
                     ((ButtonData)component).colorBackground[2] = newColor.getBlue();
                     RunClass.setObject(RunClass.getCurrentScreen(), CurrentStatePanel.getDedicated(), component);
+                    RunClass.resetSave();
                     RunClass.statePanel.updateScreen();
                 }
             }
@@ -126,6 +127,7 @@ public class ObjectOptionsPanel extends JPanel {
                     ((ButtonData)component).colorFont[1] = newColor.getGreen();
                     ((ButtonData)component).colorFont[2] = newColor.getBlue();
                     RunClass.setObject(RunClass.getCurrentScreen(), CurrentStatePanel.getDedicated(), component);
+                    RunClass.resetSave();
                     RunClass.statePanel.updateScreen();
                 }
             }
@@ -134,7 +136,7 @@ public class ObjectOptionsPanel extends JPanel {
         buttonConditions.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                new TransitionsScreen();
+                new TransitionsScreen(RunClass.getTransitionsData(false));
             }
         });
     }
@@ -250,13 +252,14 @@ public class ObjectOptionsPanel extends JPanel {
                         break;
                     }
                 }
+                RunClass.resetSave();
                 RunClass.setObject(RunClass.getCurrentScreen(), CurrentStatePanel.getDedicated(), component);
                 RunClass.screensPanel.updateScreen();
                 RunClass.statePanel.updateScreen();
             }
         };
 
-
+        settings.setRowSelectionAllowed(false);
         settings.setPreferredSize(new Dimension(this.getWidth()*14/15, this.getHeight()*14/15));
         JScrollPane setPane = new JScrollPane(settings);
         setPane.setBounds(0, 0, this.getWidth(), this.getHeight());

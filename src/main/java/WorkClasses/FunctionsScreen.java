@@ -1,9 +1,10 @@
 package WorkClasses;
 
 import ComponentsDescription.ConditionData;
+import ComponentsDescription.FunctionData;
 import ComponentsDescription.ScreenData;
-import ComponentsDescription.TransitionData;
 import Panels.CurrentStatePanel;
+import Panels.ScreenOptionsPanel;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -14,15 +15,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class ConditionsScreen implements ActionListener {
+public class FunctionsScreen implements ActionListener {
 
     private static ArrayList<Object[]> data;
-    private final String[] columnNames = {"Левая часть", "Знак", "Правая часть"};
-    private static ArrayList<ConditionData> conditions;
-    public static JPanel panel = new JPanel(new GridBagLayout());
+    private final String[] columnNames = {"Переменная", "Значение"};
+    private static ArrayList<FunctionData> functions;
+    private static JPanel panel = new JPanel(new GridBagLayout());
     private static JTable settings;
 
     class TableModel extends AbstractTableModel {
@@ -48,20 +50,21 @@ public class ConditionsScreen implements ActionListener {
         }
     }
 
-    public ConditionsScreen(ArrayList<ConditionData> nc, int index){
+    public FunctionsScreen(ArrayList<FunctionData> nf, int index){
 
         try {
+
             JDialog frame = new JDialog(RunClass.frame, "Условие", true);
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             frame.setSize(700, 400);
             //    frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
             frame.setLocationRelativeTo(RunClass.frame);
-            //     frame.setResizable(false);
             frame.addWindowListener(new WindowAdapter(){
                 public void windowClosing(WindowEvent e){
-                    TransitionsScreen.saveConditions(conditions, index);
+                    TransitionsScreen.saveFunctions(functions, index);
                 }
             });
+            //     frame.setResizable(false);
             panel.setBackground(Color.WHITE);
 
             settings = new JTable(new TableModel()){
@@ -73,7 +76,7 @@ public class ConditionsScreen implements ActionListener {
                 public TableCellRenderer getCellRenderer(int row, int column) {
                     editingClass = null;
                     int modelColumn = convertColumnIndexToModel(column);
-                    if (column == 1) {
+                    if (column == 0) {
                         Class rowClass = getModel().getValueAt(row, modelColumn).getClass();
                         return getDefaultRenderer(rowClass);
                     }
@@ -85,17 +88,12 @@ public class ConditionsScreen implements ActionListener {
                 @Override
                 public TableCellEditor getCellEditor(int row, int column) {
                     editingClass = null;
-                    if (column == 1) {
-                        String[] s = new String[]{"=", ">", "<", ">=", "<="};
-                        JComboBox<String> comboBox = new JComboBox<>(s);
-                        comboBox.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent actionEvent) {
-                                String x = (String)comboBox.getSelectedItem();
-                                data.get(row)[column] = x;
-                                conditions.get(row).sign = x;
-                            }
-                        });
+                    if (column == 0) {
+                        JComboBox<String> comboBox = new JComboBox<>();
+                        for (String x : RunClass.getParametersNameList()){
+                            comboBox.addItem(x);
+                        }
+
                         return new DefaultCellEditor(comboBox);
                     }
                     else {
@@ -110,31 +108,22 @@ public class ConditionsScreen implements ActionListener {
 
                 @Override
                 public void setValueAt(Object aValue, int row, int column) {
-                    String s = (String)aValue;
                     if (column == 0){
-                        if (s.compareTo("") == 0){
-                            JOptionPane.showMessageDialog(RunClass.frame, "Выражение условия не может быть пустым!");
+                        if (!ParsingClass.checkFunctionCorrectness((String) data.get(row)[1], RunClass.getParameter((String)aValue).type)){
+                            JOptionPane.showMessageDialog(RunClass.frame, "Выражение задано некорректно.");
                             return;
                         }
-                        if (!ParsingClass.checkExpressionsCorrectness(s, data.get(row)[2].toString())){
-                            JOptionPane.showMessageDialog(RunClass.frame, "Некорректная запись выражения!");
-                            return;
-                        }
-                        data.get(row)[column] = s;
-                        conditions.get(row).leftExpression = s;
+                        data.get(row)[column] = aValue;
+                        functions.get(row).expression = (String) aValue;
                         RunClass.resetSave();
                     }
-                    if (column == 2){
-                        if (s.compareTo("") == 0){
-                            JOptionPane.showMessageDialog(RunClass.frame, "Выражение условия не может быть пустым!");
+                    if (column == 1){
+                        if (!ParsingClass.checkFunctionCorrectness((String)aValue, RunClass.getParameter((String) data.get(row)[0]).type)){
+                            JOptionPane.showMessageDialog(RunClass.frame, "Выражение задано некорректно.");
                             return;
                         }
-                        if (!ParsingClass.checkExpressionsCorrectness(s, data.get(row)[0].toString())){
-                            JOptionPane.showMessageDialog(RunClass.frame, "Некорректная запись выражения!");
-                            return;
-                        }
-                        data.get(row)[column] = s;
-                        conditions.get(row).rightExpression = s;
+                        data.get(row)[column] = aValue;
+                        functions.get(row).expression = (String) aValue;
                         RunClass.resetSave();
                     }
                 }
@@ -143,9 +132,8 @@ public class ConditionsScreen implements ActionListener {
             settings.setRowSelectionAllowed(false);
             settings.setPreferredSize(new Dimension(frame.getWidth(), frame.getHeight()));
 
-            conditions = nc;
+            functions = nf;
             updateScreen();
-
             frame.setContentPane(panel);
             frame.setVisible(true);
         }
@@ -157,14 +145,13 @@ public class ConditionsScreen implements ActionListener {
 
     public static void updateScreen(){
         data = new ArrayList<>();
-        for (ConditionData condition : conditions) {
-            Object[] s = new Object[]{condition.leftExpression, condition.sign, condition.rightExpression};
+        for (FunctionData function : functions) {
+            Object[] s = new Object[]{function.varName, function.expression};
             data.add(s);
         }
 
         panel.removeAll();
         JScrollPane setPane = new JScrollPane(settings);
-
         panel.add(setPane, new GridBagConstraints(0, 0, 2, 1, 1, 1,
                 GridBagConstraints.NORTH, GridBagConstraints.CENTER,
                 new Insets(0, 0, 0, 0), 600, 270));
@@ -173,23 +160,24 @@ public class ConditionsScreen implements ActionListener {
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                new NewCondition();
+                new NewFunction();
             }
         });
         panel.add(addButton, new GridBagConstraints(0, 1, 1, 1, 1, 1,
                 GridBagConstraints.NORTH, GridBagConstraints.CENTER,
                 new Insets(1, 1, 1, 1), 20, 15));
         JButton delButton = new JButton("Удалить");
+
         delButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 int x = settings.getSelectedRow();
                 if (x < 0){
-                    JOptionPane.showMessageDialog(RunClass.frame, "Выберите условие для удаления.");
+                    JOptionPane.showMessageDialog(RunClass.frame, "Выберите функцию для удаления.");
                     return;
                 }
-                if (JOptionPane.showConfirmDialog(RunClass.frame, "Удалить условие?", "Удаление", JOptionPane.YES_NO_OPTION) == 0){
-                    conditions.remove(x);
+                if (JOptionPane.showConfirmDialog(RunClass.frame, "Удалить функцию?", "Удаление", JOptionPane.YES_NO_OPTION) == 0){
+                    functions.remove(x);
                     RunClass.resetSave();
                     updateScreen();
                 }
@@ -201,14 +189,14 @@ public class ConditionsScreen implements ActionListener {
         panel.updateUI();
     }
 
-
-    public static void addCondition(ConditionData condition){
-        conditions.add(condition);
+    public static void addFunction(FunctionData function){
+        functions.add(function);
         updateScreen();
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent actionEvent) {
 
     }
+
 }

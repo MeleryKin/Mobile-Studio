@@ -50,9 +50,8 @@ public class NewScreen implements ActionListener {
                     if (!f){
                         ScreenData ns = new ScreenData();
                         ns.name = nw;
-                        ns.nextScreen = RunClass.getScreen(0).name;
-                        //RunClass.projectData.screens.add(ns);
                         RunClass.addNewScreen(ns);
+                        RunClass.resetSave();
                         frame.dispose();
                     }
                 }

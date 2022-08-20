@@ -112,6 +112,7 @@ public class ScreensListPanel extends JPanel {
                     }
                     if (JOptionPane.showConfirmDialog(RunClass.frame, "Удалить экран?", "Удаление", JOptionPane.YES_NO_OPTION) == 0){
                         RunClass.deleteScreen(RunClass.getScreenID(screen));
+                        RunClass.resetSave();
                     }
 
                 }
@@ -120,6 +121,7 @@ public class ScreensListPanel extends JPanel {
                     String object = path.getPathComponent(2).toString();
                     if (JOptionPane.showConfirmDialog(RunClass.frame, "Удалить объект?", "Удаление", JOptionPane.YES_NO_OPTION) == 0) {
                         RunClass.deleteObject(RunClass.getScreenID(screen), RunClass.getObjectID(RunClass.getScreenID(screen), object));
+                        RunClass.resetSave();
                     }
                 }
                 else {

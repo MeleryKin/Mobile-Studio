@@ -63,6 +63,7 @@ public class ComponentsPanel extends JPanel {
                     tmp.indexComp++;
                     tx.text = "Текст";
                     tx.type = "TextField";
+                    tx.colorFont = new int[]{0, 0, 0};
                     tx.w = 40;
                     tx.h = 20;
                     Rectangle r = LocationClass.getScreenToGridSize(x - RunClass.statePanel.getX(),
@@ -73,6 +74,7 @@ public class ComponentsPanel extends JPanel {
                     RunClass.setScreen(RunClass.getCurrentScreen(), tmp);
                     CurrentStatePanel.setDedicated(tmp.components.size() - 1);
                     CurrentStatePanel.setDedicatedType("TextField");
+                    RunClass.resetSave();
                     RunClass.statePanel.updateScreen();
                     RunClass.objectOptionsPanel.updateScreen();
                     RunClass.screensPanel.updateScreen();
@@ -105,6 +107,7 @@ public class ComponentsPanel extends JPanel {
                     RunClass.setScreen(RunClass.getCurrentScreen(), tmp);
                     CurrentStatePanel.setDedicated(tmp.components.size() - 1);
                     CurrentStatePanel.setDedicatedType("Button");
+                    RunClass.resetSave();
                     RunClass.statePanel.updateScreen();
                     RunClass.objectOptionsPanel.updateScreen();
                     RunClass.screensPanel.updateScreen();
@@ -135,6 +138,7 @@ public class ComponentsPanel extends JPanel {
                     RunClass.setScreen(RunClass.getCurrentScreen(), tmp);
                     CurrentStatePanel.setDedicated(tmp.components.size() - 1);
                     CurrentStatePanel.setDedicatedType("Image");
+                    RunClass.resetSave();
                     RunClass.statePanel.updateScreen();
                     RunClass.objectOptionsPanel.updateScreen();
                     RunClass.screensPanel.updateScreen();

@@ -100,6 +100,7 @@ public class ScreenOptionsPanel extends JPanel {
                     screen.color[1] = newColor.getGreen();
                     screen.color[2] = newColor.getBlue();
                     RunClass.setScreen(RunClass.getCurrentScreen(), screen);
+                    RunClass.resetSave();
                 }
             }
         });
@@ -107,10 +108,9 @@ public class ScreenOptionsPanel extends JPanel {
         buttonConditions.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                new TransitionsScreen();
+                new TransitionsScreen(RunClass.getTransitionsData(true));
             }
         });
-
     }
 
     public void updateScreen(){
@@ -173,12 +173,13 @@ public class ScreenOptionsPanel extends JPanel {
                     ScreenData screen = RunClass.getScreen(RunClass.getCurrentScreen());
                     screen.name = s;
                     RunClass.setScreen(RunClass.getCurrentScreen(), screen);
+                    RunClass.resetSave();
                     RunClass.screensPanel.updateScreen();
                 }
             }
         };
 
-
+        settings.setRowSelectionAllowed(false);
         settings.setPreferredSize(new Dimension(this.getWidth()*14/15, this.getHeight()*14/15));
         //settings.setPreferredScrollableViewportSize(settings.getPreferredSize());
         JScrollPane setPane = new JScrollPane(settings);

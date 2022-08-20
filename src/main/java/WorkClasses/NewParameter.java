@@ -64,29 +64,30 @@ public class NewParameter implements ActionListener {
                     x.name = nameText.getText();
                     x.type = (String)typeCombo.getSelectedItem();
                     x.value = valueText.getText();
-                    boolean f = false;
+                    if (x.name.compareTo("") == 0){
+                        JOptionPane.showMessageDialog(frame, "Некорректное имя переменной.");
+                        return;
+                    }
                     for (int i = 0; i < RunClass.getParametersCount(); i++){
                         if (RunClass.getParameter(i).name.compareTo(x.name) == 0) {
                             JOptionPane.showMessageDialog(frame, "Переменная с таким именем уже существует.");
-                            f = true;
-                            break;
+                            return;
                         }
-                        if (x.type.compareTo("Число") == 0){
-                            try {
-                                int s;
-                                s = Integer.parseInt(x.value);
+                    }
+                    if (x.type.compareTo("Число") == 0){
+                        try {
+                            int s;
+                            s = Integer.parseInt(x.value);
 
-                            } catch (NumberFormatException e) {
-                                JOptionPane.showMessageDialog(frame, "Неправильный формат числа!");
-                                return;
-                            }
+                        } catch (NumberFormatException e) {
+                            JOptionPane.showMessageDialog(frame, "Неправильный формат числа!");
+                            return;
                         }
                     }
-                    if (!f){
-                        RunClass.addParameter(x);
-                        RunClass.dataPanel.updateScreen();
-                        frame.dispose();
-                    }
+                    RunClass.addParameter(x);
+                    RunClass.resetSave();
+                    RunClass.dataPanel.updateScreen();
+                    frame.dispose();
                 }
             });
             panel.add(addButton, new GridBagConstraints(0, 3, 2, 1, 1, 1,
